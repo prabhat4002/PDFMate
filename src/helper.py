@@ -40,52 +40,52 @@ def get_vector_store(text_chunks):
     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
     return vector_store
 
-# def get_conversational_chain(vector_store):
-#     # Use google/flan-t5-large for better performance
-#     model_name = "google/flan-t5-large"
-#     tokenizer = T5Tokenizer.from_pretrained(model_name)
-#     model = T5ForConditionalGeneration.from_pretrained(model_name)
+def get_conversational_chain(vector_store):
+    # Use google/flan-t5-large for better performance
+    model_name = "google/flan-t5-large"
+    tokenizer = T5Tokenizer.from_pretrained(model_name)
+    model = T5ForConditionalGeneration.from_pretrained(model_name)
     
-#     # Set up pipeline
-#     pipe = pipeline(
-#         "text2text-generation",
-#         model=model,
-#         tokenizer=tokenizer,
-#         max_new_tokens=512,  # Allow longer, more detailed responses
-#         truncation=True
-#     )
-#     llm = HuggingFacePipeline(pipeline=pipe)
+    # Set up pipeline
+    pipe = pipeline(
+        "text2text-generation",
+        model=model,
+        tokenizer=tokenizer,
+        max_new_tokens=512,  # Allow longer, more detailed responses
+        truncation=True
+    )
+    llm = HuggingFacePipeline(pipeline=pipe)
     
-#     # Memory setup with explicit output_key
-#     memory = ConversationBufferMemory(
-#         memory_key="chat_history",
-#         return_messages=True,
-#         output_key="answer"  # Specify which key to store in memory
-#     )
+    # Memory setup with explicit output_key
+    memory = ConversationBufferMemory(
+        memory_key="chat_history",
+        return_messages=True,
+        output_key="answer"  # Specify which key to store in memory
+    )
     
-#     # Custom prompt to improve answer quality
-#     prompt_template = """
-#     Given the following context from a PDF: {context}
-#     Answer this question: {question}
-#     Provide a concise and accurate response based only on the context.
-#     """
-#     prompt = PromptTemplate(input_variables=["context", "question"], template=prompt_template)
+    # Custom prompt to improve answer quality
+    prompt_template = """
+    Given the following context from a PDF: {context}
+    Answer this question: {question}
+    Provide a concise and accurate response based only on the context.
+    """
+    prompt = PromptTemplate(input_variables=["context", "question"], template=prompt_template)
     
-#     # Conversational chain with custom prompt and output_key
-#     conversation_chain = ConversationalRetrievalChain.from_llm(
-#         llm=llm,
-#         retriever=vector_store.as_retriever(search_kwargs={"k": 3}),  # Retrieve top 3 chunks
-#         memory=memory,
-#         combine_docs_chain_kwargs={"prompt": prompt},
-#         return_source_documents=True,  # For debugging
-#         output_key="answer"  # Explicitly set the output key for the chain
-#     )
+    # Conversational chain with custom prompt and output_key
+    conversation_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=vector_store.as_retriever(search_kwargs={"k": 3}),  # Retrieve top 3 chunks
+        memory=memory,
+        combine_docs_chain_kwargs={"prompt": prompt},
+        return_source_documents=True,  # For debugging
+        output_key="answer"  # Explicitly set the output key for the chain
+    )
     
-#     # Wrap the chain in a debug function
-#     def debug_chain(input_dict):
-#         result = conversation_chain(input_dict)  # Direct call to the chain
-#         print("Retrieved docs:", [doc.page_content for doc in result.get("source_documents", [])])
-#         print("Generated answer:", result["answer"])
-#         return result
+    # Wrap the chain in a debug function
+    def debug_chain(input_dict):
+        result = conversation_chain(input_dict)  # Direct call to the chain
+        print("Retrieved docs:", [doc.page_content for doc in result.get("source_documents", [])])
+        print("Generated answer:", result["answer"])
+        return result
     
-#     return debug_chain  # Return the wrapped function
+    return debug_chain  # Return the wrapped function
