@@ -16,7 +16,7 @@ def user_input(user_question):
 
 def main():
     st.set_page_config(page_title="PDFMate Project")
-    st.header("PDFMate: PDF Assistant 💁")
+    st.header("PDFMate: PDF Assistant📖| AI THEORY CA III ")
 
     # Initialize session state variables
     if "conversation" not in st.session_state:
